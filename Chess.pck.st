@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:16:26 pm'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:25:41 pm'!
 'Description '!
-!provides: 'Chess' 1 13!
+!provides: 'Chess' 1 14!
 SystemOrganization addCategory: #chess!
 
 
@@ -386,6 +386,25 @@ test14_rookMovesVerticallyThenItsOnTheExpectedPlace
 	
 	! !
 
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 13:24:28'!
+test15_rookTriesToMoveNotVerticallyNeitherHorizontallyGeneratesError
+	self chessWithTwoMovesPerPlayer.
+	self assert: (chess hasRookOn: 8@1).
+	
+	chess movePieceFrom: 7@2 to: 7@3.
+	
+	self should: [chess movePieceFrom: 8@1 to: 7@2.] 
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:error | 
+			self assert: error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 7@2).
+			self assert: (chess hasRookOn: 8@1).	
+			self deny: (chess hasRookOn: 7@2).	
+	
+		].	
+
+
+	! !
+
 !ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 12:26:36'!
 hasBishopOn: aBoardDirection
 	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isBishop ] ]! !
@@ -409,13 +428,6 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	
 	pieceAtPosition moverHacia: aBoardDirectionToMove enElTablero: self.
 	self changeTurn.! !
-
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:14:47'!
-assertKnightPosition: aKnightPosition triesToMoveInLShapeTo: aBoardPositionToMove
-	
-	((aKnightPosition - aBoardPositionToMove) abs = (1@2) or: [
-		(aKnightPosition - aBoardPositionToMove) abs = (2@1)
-	] ) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:20:26'!
 moveBlackPawnFrom: aPawnPosition to: aBoardPositionToMove
@@ -456,9 +468,9 @@ moveWhitePawnFrom: aPawnPosition to: aBoardPositionToMove
 	self movePiece: (WhitePiece of: (Pawn at: aBoardPositionToMove)) from: aPawnPosition . 
 	! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:12:09'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:25:28'!
 moveWhiteRookFrom: aRookPosition to: aBoardPositionToMove 
-	
+	self assertRookPosition: aBoardPositionToMove goesVerticallyOrHorizontallyTo: aRookPosition.
 	self movePiece: (WhitePiece of: (Rook at: aBoardPositionToMove)) from: aRookPosition . ! !
 
 !ChessGame methodsFor: 'pawn assertions' stamp: 'IF 11/29/2025 08:00:03'!
@@ -496,6 +508,19 @@ changeTurn
 assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove
 
 	^ (aBishopPosition - aBoardPositionToMove) abs x = (aBishopPosition - aBoardPositionToMove) abs y  ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
+
+!ChessGame methodsFor: 'rook assertions' stamp: 'IF 11/29/2025 13:25:28'!
+assertRookPosition: aBoardPositionToMove goesVerticallyOrHorizontallyTo: aRookPosition
+
+	^ ((aRookPosition - aBoardPositionToMove) x = 0 or: [
+		(aRookPosition - aBoardPositionToMove) y = 0]) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove )]! !
+
+!ChessGame methodsFor: 'knight assertions' stamp: 'IF 11/29/2025 13:14:47'!
+assertKnightPosition: aKnightPosition triesToMoveInLShapeTo: aBoardPositionToMove
+	
+	((aKnightPosition - aBoardPositionToMove) abs = (1@2) or: [
+		(aKnightPosition - aBoardPositionToMove) abs = (2@1)
+	] ) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].! !
 
 !ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 10:20:13'!
 initializeWithPawnsPositionsIn: aCollectionOfPosition withTurnScheduler: aTurnScheduler.
