@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 12:45:28 pm'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:01:05 pm'!
 'Description '!
-!provides: 'Chess' 1 11!
+!provides: 'Chess' 1 12!
 SystemOrganization addCategory: #chess!
 
 
@@ -346,17 +346,36 @@ test11_pawnMoveBackwardsRaisesError
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 12:45:09'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 12:46:37'!
 test12_moveBishopDiagonallyMovesItToThePosition
 	self chessWithTwoMovesPerPlayer.
 	self assert: (chess hasBishopOn: 3@1).
 	
-	chess movePieceFrom: 3@2 to: 3@3.
+	chess movePieceFrom: 2@2 to: 2@3.
 	chess movePieceFrom: 3@1 to: 1@3.
 
 	self assert: (chess hasBishopOn: 1@3).	
 	self deny: (chess hasBishopOn: 3@1).	
 	
+	! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 12:54:06'!
+test13_bishopTriesToMoveNotDiagonallyRaisesAnError
+	self chessWithTwoMovesPerPlayer.
+	self assert: (chess hasBishopOn: 3@1).
+	
+	chess movePieceFrom: 3@2 to: 3@3.
+	
+	self should: [chess movePieceFrom: 3@1 to: 3@3.] 
+		raise: Error - MessageNotUnderstood 
+		withExceptionDo: [:error | 
+			self assert: error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 3@3).
+			self assert: (chess hasBishopOn: 3@1).	
+			self deny: (chess hasBishopOn: 3@3).	
+	
+		].	
+
+
 	! !
 
 !ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 12:26:36'!
@@ -379,8 +398,15 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	pieceAtPosition moverHacia: aBoardDirectionToMove enElTablero: self.
 	self changeTurn.! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:33:18'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:00:55'!
+assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove
+
+	^ (aBishopPosition - aBoardPositionToMove) abs x = (aBishopPosition - aBoardPositionToMove) abs y  ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
+
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:00:56'!
 moveBishopFrom: aBishopPosition to: aBoardPositionToMove 
+	
+	self assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove.
 	
 	self movePiece: (Bishop at: aBoardPositionToMove) from: aBishopPosition . ! !
 
