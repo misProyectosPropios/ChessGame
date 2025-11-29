@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:25:41 pm'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:27:28 pm'!
 'Description '!
-!provides: 'Chess' 1 14!
+!provides: 'Chess' 1 15!
 SystemOrganization addCategory: #chess!
 
 
@@ -403,6 +403,18 @@ test15_rookTriesToMoveNotVerticallyNeitherHorizontallyGeneratesError
 		].	
 
 
+	! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 13:27:22'!
+test16_tryToMoveAPieceThatDoesntHaveAnyPieceRaisesAnError
+	
+	self should: [chess movePieceFrom: 6@3 to: 6@4.] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [:error |
+			self assert: (error messageText = (ChessGame descriptionErrorNoHayPiezaEnPosicion: 6@3)).
+
+		].
+	
 	! !
 
 !ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 12:26:36'!
