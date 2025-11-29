@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:01:05 pm'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:16:26 pm'!
 'Description '!
-!provides: 'Chess' 1 12!
+!provides: 'Chess' 1 13!
 SystemOrganization addCategory: #chess!
 
 
@@ -72,16 +72,6 @@ Pieces subclass: #Pawn
 	category: 'chess'!
 !classDefinition: 'Pawn class' category: #chess!
 Pawn class
-	instanceVariableNames: ''!
-
-!classDefinition: #Queen category: #chess!
-Pieces subclass: #Queen
-	instanceVariableNames: ''
-	classVariableNames: ''
-	poolDictionaries: ''
-	category: 'chess'!
-!classDefinition: 'Queen class' category: #chess!
-Queen class
 	instanceVariableNames: ''!
 
 !classDefinition: #Rook category: #chess!
@@ -175,14 +165,19 @@ whitePawn
 	^ pawns
 	! !
 
-!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 12:27:52'!
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 13:06:03'!
 whitePiecesPosition
 	
 	whitePiecesPosition := Set new.
 	whitePiecesPosition addAll: self whitePawn .
 	whitePiecesPosition addAll: self whiteKnight .
 	whitePiecesPosition addAll: self whiteBishop .
+	whitePiecesPosition addAll: self whiteRook .
 	^ whitePiecesPosition.! !
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 13:06:25'!
+whiteRook
+	^ Set with: (WhitePiece of: (Rook at: 1@1)) with: (WhitePiece of: (Rook at: 8@1))! !
 
 !ChessTest methodsFor: 'simulation' stamp: 'IF 11/29/2025 10:31:39'!
 manyMovesPerPlayer
@@ -378,6 +373,19 @@ test13_bishopTriesToMoveNotDiagonallyRaisesAnError
 
 	! !
 
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 13:05:20'!
+test14_rookMovesVerticallyThenItsOnTheExpectedPlace
+	self chessWithTwoMovesPerPlayer.
+	self assert: (chess hasRookOn: 8@1).
+	
+	chess movePieceFrom: 8@2 to: 8@3.
+	chess movePieceFrom: 8@1 to: 8@2.
+
+	self assert: (chess hasRookOn: 8@2).	
+	self deny: (chess hasRookOn: 8@1).	
+	
+	! !
+
 !ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 12:26:36'!
 hasBishopOn: aBoardDirection
 	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isBishop ] ]! !
@@ -390,6 +398,10 @@ hasKnightOn: aBoardDirection
 hasPawnOn: aBoardDirection
 	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isPawn] ]! !
 
+!ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 13:05:30'!
+hasRookOn: aBoardDirection
+	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isRook ] ]! !
+
 !ChessGame methodsFor: 'actions' stamp: 'IF 11/29/2025 12:14:03'!
 movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	|pieceAtPosition|
@@ -398,17 +410,12 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	pieceAtPosition moverHacia: aBoardDirectionToMove enElTablero: self.
 	self changeTurn.! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:00:55'!
-assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove
-
-	^ (aBishopPosition - aBoardPositionToMove) abs x = (aBishopPosition - aBoardPositionToMove) abs y  ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
-
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:00:56'!
-moveBishopFrom: aBishopPosition to: aBoardPositionToMove 
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:14:47'!
+assertKnightPosition: aKnightPosition triesToMoveInLShapeTo: aBoardPositionToMove
 	
-	self assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove.
-	
-	self movePiece: (Bishop at: aBoardPositionToMove) from: aBishopPosition . ! !
+	((aKnightPosition - aBoardPositionToMove) abs = (1@2) or: [
+		(aKnightPosition - aBoardPositionToMove) abs = (2@1)
+	] ) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:20:26'!
 moveBlackPawnFrom: aPawnPosition to: aBoardPositionToMove
@@ -421,29 +428,24 @@ moveBlackPawnFrom: aPawnPosition to: aBoardPositionToMove
 	self movePiece: (BlackPiece of: (Pawn at: aBoardPositionToMove)) from: aPawnPosition . 
 	! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 09:01:01'!
-moveKnightFrom: aKnightPosition to: aBoardPositionToMove 
-	|knight|
-	((aKnightPosition - aBoardPositionToMove) abs = (1@2) or: [
-		(aKnightPosition - aBoardPositionToMove) abs = (2@1)
-	] ) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].
-	
-	knight := Knight at: aBoardPositionToMove.
-	pieces add: knight.
-	self removePieceAt: aKnightPosition ! !
-
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:06:44'!
-movePawnFrom: aBoardPositionToMove to: aPawnPosition
-
-	pieces add: (Pawn at: aBoardPositionToMove).
-	self removePieceAt: aPawnPosition! !
-
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:18:57'!
 movePiece: aPiece from: aPosition
 	pieces add: aPiece.
 	self removePieceAt: aPosition .! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:14:32'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:12:31'!
+moveWhiteBishopFrom: aBishopPosition to: aBoardPositionToMove 
+	
+	self assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove.
+	
+	self movePiece: (WhitePiece of: (Bishop at: aBoardPositionToMove)) from: aBishopPosition . ! !
+
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:15:09'!
+moveWhiteKnightFrom: aKnightPosition to: aBoardPositionToMove 
+	self assertKnightPosition: aKnightPosition triesToMoveInLShapeTo: aBoardPositionToMove.
+	self movePiece: (WhitePiece of: (Knight at: aBoardPositionToMove)) from: aKnightPosition . ! !
+
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:13:02'!
 moveWhitePawnFrom: aPawnPosition to: aBoardPositionToMove
 	
 	self assertPawnDoestMoveFrom: aPawnPosition horizontallyTo: aBoardPositionToMove. 
@@ -451,10 +453,13 @@ moveWhitePawnFrom: aPawnPosition to: aBoardPositionToMove
 	(aPawnPosition - aBoardPositionToMove) abs y > 2 ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].
 	
 	self assertThatWhitePawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove.
+	self movePiece: (WhitePiece of: (Pawn at: aBoardPositionToMove)) from: aPawnPosition . 
+	! !
+
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:12:09'!
+moveWhiteRookFrom: aRookPosition to: aBoardPositionToMove 
 	
-	pieces add: (WhitePiece of: (Pawn at: aBoardPositionToMove)).
-	self removePieceAt: aPawnPosition.
-! !
+	self movePiece: (WhitePiece of: (Rook at: aBoardPositionToMove)) from: aRookPosition . ! !
 
 !ChessGame methodsFor: 'pawn assertions' stamp: 'IF 11/29/2025 08:00:03'!
 assertPawnDoestMoveFrom: aPawnDirection horizontallyTo: aBoardDirectionToMove
@@ -486,6 +491,11 @@ isWhiteTurn
 !ChessGame methodsFor: 'turns' stamp: 'IF 11/29/2025 10:33:19'!
 changeTurn
 	turnWhite := turnScheduler nextTurn.! !
+
+!ChessGame methodsFor: 'bishop assertions' stamp: 'IF 11/29/2025 13:00:55'!
+assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove
+
+	^ (aBishopPosition - aBoardPositionToMove) abs x = (aBishopPosition - aBoardPositionToMove) abs y  ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
 
 !ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 10:20:13'!
 initializeWithPawnsPositionsIn: aCollectionOfPosition withTurnScheduler: aTurnScheduler.
@@ -555,6 +565,10 @@ moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 
 	self subclassResponsibility! !
 
+!Pieces class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 13:07:06'!
+at: aBoardPosition
+	^ self new initializeAt: aBoardPosition ! !
+
 !Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:23'!
 isBishop
 	^ true! !
@@ -579,17 +593,13 @@ isQueen
 isRook
 	^ false.! !
 
-!Bishop methodsFor: 'action' stamp: 'IF 11/29/2025 12:33:51'!
+!Bishop methodsFor: 'action' stamp: 'IF 11/29/2025 13:09:15'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
-	aChessBoard moveBishopFrom: position to: aBoardPosition ! !
+	aChessBoard moveWhiteBishopFrom: position to: aBoardPosition ! !
 
 !Bishop methodsFor: 'action' stamp: 'IF 11/29/2025 11:12:16'!
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	self subclassResponsibility ! !
-
-!Bishop class methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 12:28:32'!
-at: aBoardPosition
-	^ self new initializeAt: aBoardPosition ! !
 
 !King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:37'!
 isBishop
@@ -647,17 +657,13 @@ isQueen
 isRook
 	^ false.! !
 
-!Knight methodsFor: 'action' stamp: 'IF 11/29/2025 11:11:40'!
+!Knight methodsFor: 'action' stamp: 'IF 11/29/2025 13:11:58'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
-	aChessBoard moveKnightFrom: position to: aBoardPosition ! !
+	aChessBoard moveWhiteKnightFrom: position to: aBoardPosition ! !
 
 !Knight methodsFor: 'action' stamp: 'IF 11/29/2025 11:12:16'!
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	self subclassResponsibility ! !
-
-!Knight class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 08:28:09'!
-at: aBoardPosition
-	^ self new initializeAt: aBoardPosition ! !
 
 !Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:19'!
 isBishop
@@ -691,42 +697,6 @@ moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	aChessBoard moveBlackPawnFrom: position to: aBoardPosition ! !
 
-!Pawn class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 07:54:16'!
-at: aBoardPosition
-	^ self new initializeAt: aBoardPosition ! !
-
-!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:37'!
-isBishop
-	^ false.! !
-
-!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:39'!
-isKing
-	^ false.! !
-
-!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:42'!
-isKnight
-	^ false.! !
-
-!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:44'!
-isPawn
-	^ false.! !
-
-!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:50'!
-isQueen
-	^ true! !
-
-!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:53'!
-isRook
-	^ false.! !
-
-!Queen methodsFor: 'action' stamp: 'IF 11/29/2025 11:11:40'!
-moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
-	self subclassResponsibility ! !
-
-!Queen methodsFor: 'action' stamp: 'IF 11/29/2025 11:12:16'!
-moverNegraHacia: aBoardPosition enElTablero: aChessBoard
-	self subclassResponsibility ! !
-
 !Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:00'!
 isBishop
 	^ false.! !
@@ -751,9 +721,9 @@ isQueen
 isRook
 	^ true! !
 
-!Rook methodsFor: 'action' stamp: 'IF 11/29/2025 11:11:41'!
+!Rook methodsFor: 'action' stamp: 'IF 11/29/2025 13:16:10'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
-	self subclassResponsibility ! !
+	aChessBoard moveWhiteRookFrom: position to: aBoardPosition ! !
 
 !Rook methodsFor: 'action' stamp: 'IF 11/29/2025 11:12:16'!
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
