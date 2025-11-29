@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 8:00:16 am'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 8:25:24 am'!
 'Description '!
-!provides: 'Chess' 1 3!
+!provides: 'Chess' 1 4!
 SystemOrganization addCategory: #chess!
 
 
@@ -143,9 +143,22 @@ test04_tryMovingPawnMoreThan2CellsAboveRaisesAnError
 	
 	! !
 
-!ChessGame methodsFor: 'testing' stamp: 'IF 11/29/2025 07:58:38'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 08:03:28'!
+test05_moveKnigthFrom2x1To3x3HasKnightInTheNewPosition
+	
+	self assert: (chess hasKnightOn: 2@1).
+	chess movePieceFrom: 2@1 to: 3@3.
+	self assert: (chess hasKnightOn: 5@3).
+	self deny: (chess hasKnightOn: 5@3).
+! !
+
+!ChessGame methodsFor: 'testing' stamp: 'IF 11/29/2025 08:22:36'!
+hasKnightOn: aBoardDirection
+	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isKnight ] ]! !
+
+!ChessGame methodsFor: 'testing' stamp: 'IF 11/29/2025 08:22:18'!
 hasPawnOn: aBoardDirection
-	^ pieces anySatisfy: [:piece2 | piece2 atPosition: aBoardDirection ]! !
+	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isPawn] ]! !
 
 !ChessGame methodsFor: 'actions' stamp: 'IF 11/29/2025 07:34:07'!
 movePieceFrom: aPawnDirection to: aBoardDirectionToMove
@@ -190,17 +203,119 @@ atPosition: aPosition
 
 	self subclassResponsibility! !
 
+!Pieces methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:16'!
+isBishop
+
+	self subclassResponsibility! !
+
+!Pieces methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:16'!
+isKing
+
+	self subclassResponsibility! !
+
+!Pieces methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:16'!
+isKnight
+
+	self subclassResponsibility! !
+
+!Pieces methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:16'!
+isPawn
+
+	self subclassResponsibility! !
+
+!Pieces methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:17'!
+isQueen
+
+	self subclassResponsibility! !
+
+!Pieces methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:17'!
+isRook
+
+	self subclassResponsibility! !
+
 !Bishop methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:03'!
 atPosition: aPosition
 	self subclassResponsibility ! !
+
+!Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:23'!
+isBishop
+	^ true! !
+
+!Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:26'!
+isKing
+	^ false.! !
+
+!Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:28'!
+isKnight
+	^ false.! !
+
+!Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:28'!
+isPawn
+	^ false.! !
+
+!Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:31'!
+isQueen
+	^ false.! !
+
+!Bishop methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:34'!
+isRook
+	^ false.! !
 
 !King methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:02'!
 atPosition: aPosition
 	self subclassResponsibility ! !
 
+!King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:37'!
+isBishop
+	^ false.! !
+
+!King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:54'!
+isKing
+	^ true! !
+
+!King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:41'!
+isKnight
+	^ false.! !
+
+!King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:44'!
+isPawn
+	^ false.! !
+
+!King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:47'!
+isQueen
+	^ false.! !
+
+!King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:49'!
+isRook
+	^ false.! !
+
 !Knight methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:02'!
 atPosition: aPosition
 	self subclassResponsibility ! !
+
+!Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:58'!
+isBishop
+	^ false.! !
+
+!Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:00'!
+isKing
+	^ false.! !
+
+!Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:14'!
+isKnight
+	^ true! !
+
+!Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:04'!
+isPawn
+	^ false.! !
+
+!Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:06'!
+isQueen
+	^ false.! !
+
+!Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:09'!
+isRook
+	^ false.! !
 
 !Pawn methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:24'!
 atPosition: aPosition
@@ -210,6 +325,30 @@ atPosition: aPosition
 initializeAt: aBoardPosition 
 	position := aBoardPosition ! !
 
+!Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:19'!
+isBishop
+	^ false.! !
+
+!Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:22'!
+isKing
+	^ false.! !
+
+!Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:24'!
+isKnight
+	^ false.! !
+
+!Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:28'!
+isPawn
+	^ true! !
+
+!Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:31'!
+isQueen
+	^ false.! !
+
+!Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:33'!
+isRook
+	^ false.! !
+
 !Pawn class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 07:54:16'!
 at: aBoardPosition
 	^ self new initializeAt: aBoardPosition ! !
@@ -218,6 +357,54 @@ at: aBoardPosition
 atPosition: aPosition
 	self subclassResponsibility ! !
 
+!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:37'!
+isBishop
+	^ false.! !
+
+!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:39'!
+isKing
+	^ false.! !
+
+!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:42'!
+isKnight
+	^ false.! !
+
+!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:44'!
+isPawn
+	^ false.! !
+
+!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:50'!
+isQueen
+	^ true! !
+
+!Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:53'!
+isRook
+	^ false.! !
+
 !Rook methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:03'!
 atPosition: aPosition
 	self subclassResponsibility ! !
+
+!Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:00'!
+isBishop
+	^ false.! !
+
+!Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:02'!
+isKing
+	^ false.! !
+
+!Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:05'!
+isKnight
+	^ false.! !
+
+!Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:07'!
+isPawn
+	^ false.! !
+
+!Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:10'!
+isQueen
+	^ false.! !
+
+!Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:14'!
+isRook
+	^ true! !
