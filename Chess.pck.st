@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:27:28 pm'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 1:57:18 pm'!
 'Description '!
-!provides: 'Chess' 1 15!
+!provides: 'Chess' 1 16!
 SystemOrganization addCategory: #chess!
 
 
@@ -412,6 +412,21 @@ test16_tryToMoveAPieceThatDoesntHaveAnyPieceRaisesAnError
 		raise: Error - MessageNotUnderstood  
 		withExceptionDo: [:error |
 			self assert: (error messageText = (ChessGame descriptionErrorNoHayPiezaEnPosicion: 6@3)).
+
+		].
+	
+	! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 13:57:12'!
+test17_pawnFirstMove2CellsAndThenTriesAgainMove2TilesRaisesException
+	self chessWithTwoMovesPerPlayer.
+	chess movePieceFrom: 5@2 to: 5@4.
+	
+	self should: [chess movePieceFrom: 5@4 to: 5@6] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [:error |
+			self assert: (error messageText = (ChessGame descriptionErrorNoHayPiezaEnPosicion: 5@6)).
+			self assert: (chess hasPawnOn: 5@4).
 
 		].
 	
