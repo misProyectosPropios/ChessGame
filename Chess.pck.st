@@ -1,12 +1,12 @@
-'From Cuis7.2 [latest update: #6897] on 26 November 2025 at 9:40:00 am'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 7:22:12 am'!
 'Description '!
-!provides: 'Chess' 1 0!
+!provides: 'Chess' 1 1!
 SystemOrganization addCategory: #chess!
 
 
 !classDefinition: #ChessTest category: #chess!
 TestCase subclass: #ChessTest
-	instanceVariableNames: ''
+	instanceVariableNames: 'chess pawnPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'chess'!
@@ -25,33 +25,47 @@ ChessGame class
 	instanceVariableNames: ''!
 
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/26/2025 09:38:54'!
-test01_pawnMoveToE3GetsChangeToThisPosition
-	|chess|
-	chess := ChessGame new.
-	self assert: (chess hasPawnOn: 'e2').
-	chess movePawnFrom: 'e2' to: 'e3'.
-	self assert: (chess hasPawnOn: 'e3').! !
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 07:10:38'!
+whitePawnPosition
+	 
+	pawnPosition := Set new.
+	1 to: 8 do: [:x | pawnPosition add: x@2].! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/26/2025 09:37:38'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:17:31'!
+setUp
+	self whitePawnPosition .
+	chess := ChessGame withPawnsOn: pawnPosition ! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:20:18'!
+test01_movePieceFromE2ToE3HasPawnOnTheNewPosition
+	 chess := ChessGame withPawnsOn: pawnPosition .
+	self assert: (chess hasPawnOn: 5@2).
+	chess movePieceFrom: 5@2 to: 5@3.
+	self assert: (chess hasPawnOn: 5@3).! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:22:00'!
 test02_pawnMoveFromE2ToE3IsNotInE2
-	|chess|
-	chess := ChessGame new.
-	chess movePawnFrom: 'e2' to: 'e3'.
-	self deny: (chess hasPawnOn: 'e2')! !
 
-!ChessGame methodsFor: 'testing' stamp: 'IF 11/26/2025 09:38:36'!
+	chess movePieceFrom: 5@2 to: 5@3.
+	self deny: (chess hasPawnOn: 5@2)! !
+
+!ChessGame methodsFor: 'testing' stamp: 'IF 11/29/2025 07:20:38'!
 hasPawnOn: aBoardDirection
-	^ pawn = aBoardDirection ! !
+	^ pawn includes: aBoardDirection ! !
 
-!ChessGame methodsFor: 'actions' stamp: 'IF 11/26/2025 09:34:58'!
-movePawn: aBoardDirection
-	! !
-
-!ChessGame methodsFor: 'actions' stamp: 'IF 11/26/2025 09:38:27'!
-movePawnFrom: aPawnDirection to: aBoardDirectionToMove
-	pawn := aBoardDirectionToMove ! !
+!ChessGame methodsFor: 'actions' stamp: 'IF 11/29/2025 07:21:37'!
+movePieceFrom: aPawnDirection to: aBoardDirectionToMove
+	pawn add: aBoardDirectionToMove;
+		  remove: aPawnDirection ! !
 
 !ChessGame methodsFor: 'initialization' stamp: 'IF 11/26/2025 09:38:15'!
 initialize
 	pawn := 'e2'! !
+
+!ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 07:06:26'!
+initializeWithPawnsPositionsIn: aCollectionOfPosition 
+	pawn := aCollectionOfPosition ! !
+
+!ChessGame class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 07:06:05'!
+withPawnsOn: aCollectionOfPosition
+	^ self new initializeWithPawnsPositionsIn: aCollectionOfPosition ! !
