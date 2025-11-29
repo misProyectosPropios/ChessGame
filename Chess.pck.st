@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 12:22:08 pm'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 12:45:28 pm'!
 'Description '!
-!provides: 'Chess' 1 10!
+!provides: 'Chess' 1 11!
 SystemOrganization addCategory: #chess!
 
 
@@ -159,6 +159,10 @@ standarPositionPieces
 	pieces addAll: self blackPiecesPosition .
 	! !
 
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 12:27:30'!
+whiteBishop
+	^ Set with: (WhitePiece of: (Bishop at: 3@1)) with: (WhitePiece of: (Bishop at: 6@1))! !
+
 !ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 11:17:26'!
 whiteKnight
 	^ Set with: (WhitePiece of: (Knight at: 2@1)) with: (WhitePiece of: (Knight at: 7@1))! !
@@ -171,12 +175,13 @@ whitePawn
 	^ pawns
 	! !
 
-!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:45:01'!
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 12:27:52'!
 whitePiecesPosition
 	
 	whitePiecesPosition := Set new.
 	whitePiecesPosition addAll: self whitePawn .
 	whitePiecesPosition addAll: self whiteKnight .
+	whitePiecesPosition addAll: self whiteBishop .
 	^ whitePiecesPosition.! !
 
 !ChessTest methodsFor: 'simulation' stamp: 'IF 11/29/2025 10:31:39'!
@@ -341,6 +346,23 @@ test11_pawnMoveBackwardsRaisesError
 	
 	! !
 
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 12:45:09'!
+test12_moveBishopDiagonallyMovesItToThePosition
+	self chessWithTwoMovesPerPlayer.
+	self assert: (chess hasBishopOn: 3@1).
+	
+	chess movePieceFrom: 3@2 to: 3@3.
+	chess movePieceFrom: 3@1 to: 1@3.
+
+	self assert: (chess hasBishopOn: 1@3).	
+	self deny: (chess hasBishopOn: 3@1).	
+	
+	! !
+
+!ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 12:26:36'!
+hasBishopOn: aBoardDirection
+	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isBishop ] ]! !
+
 !ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 08:22:36'!
 hasKnightOn: aBoardDirection
 	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isKnight ] ]! !
@@ -356,6 +378,11 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	
 	pieceAtPosition moverHacia: aBoardDirectionToMove enElTablero: self.
 	self changeTurn.! !
+
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:33:18'!
+moveBishopFrom: aBishopPosition to: aBoardPositionToMove 
+	
+	self movePiece: (Bishop at: aBoardPositionToMove) from: aBishopPosition . ! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:20:26'!
 moveBlackPawnFrom: aPawnPosition to: aBoardPositionToMove
@@ -488,6 +515,10 @@ isRook
 
 	self subclassResponsibility! !
 
+!Pieces methodsFor: 'initialization' stamp: 'IF 11/29/2025 12:29:48'!
+initializeAt: aPosition 
+	position := aPosition! !
+
 !Pieces methodsFor: 'action' stamp: 'IF 11/29/2025 11:11:40'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 
@@ -522,13 +553,17 @@ isQueen
 isRook
 	^ false.! !
 
-!Bishop methodsFor: 'action' stamp: 'IF 11/29/2025 11:11:40'!
+!Bishop methodsFor: 'action' stamp: 'IF 11/29/2025 12:33:51'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
-	self subclassResponsibility ! !
+	aChessBoard moveBishopFrom: position to: aBoardPosition ! !
 
 !Bishop methodsFor: 'action' stamp: 'IF 11/29/2025 11:12:16'!
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	self subclassResponsibility ! !
+
+!Bishop class methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 12:28:32'!
+at: aBoardPosition
+	^ self new initializeAt: aBoardPosition ! !
 
 !King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:37'!
 isBishop
@@ -561,10 +596,6 @@ moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 !King methodsFor: 'action' stamp: 'IF 11/29/2025 11:12:16'!
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	self subclassResponsibility ! !
-
-!Knight methodsFor: 'initialization' stamp: 'IF 11/29/2025 08:29:49'!
-initializeAt: aPosition 
-	position := aPosition! !
 
 !Knight methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:58'!
 isBishop
@@ -601,10 +632,6 @@ moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 !Knight class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 08:28:09'!
 at: aBoardPosition
 	^ self new initializeAt: aBoardPosition ! !
-
-!Pawn methodsFor: 'initialization' stamp: 'IF 11/29/2025 07:54:30'!
-initializeAt: aBoardPosition 
-	position := aBoardPosition ! !
 
 !Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:19'!
 isBishop
@@ -665,10 +692,6 @@ isQueen
 !Queen methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:53'!
 isRook
 	^ false.! !
-
-!Queen methodsFor: 'initialization' stamp: 'IF 11/29/2025 08:29:15'!
-initializeAt: aPosition
-	position := aPosition ! !
 
 !Queen methodsFor: 'action' stamp: 'IF 11/29/2025 11:11:40'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
