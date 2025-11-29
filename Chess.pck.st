@@ -1,12 +1,12 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 9:05:26 am'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 10:02:05 am'!
 'Description '!
-!provides: 'Chess' 1 6!
+!provides: 'Chess' 1 7!
 SystemOrganization addCategory: #chess!
 
 
 !classDefinition: #ChessTest category: #chess!
 TestCase subclass: #ChessTest
-	instanceVariableNames: 'chess whitePiecesPosition'
+	instanceVariableNames: 'chess whitePiecesPosition blackPiecesPosition pieces'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'chess'!
@@ -16,7 +16,7 @@ ChessTest class
 
 !classDefinition: #ChessGame category: #chess!
 Object subclass: #ChessGame
-	instanceVariableNames: 'pieces turn'
+	instanceVariableNames: 'pieces turnWhite'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'chess'!
@@ -95,18 +95,57 @@ Rook class
 	instanceVariableNames: ''!
 
 
-!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 08:27:48'!
-whitePiecesPosition
-	 
-	whitePiecesPosition := Set new.
-	1 to: 8 do: [:x | whitePiecesPosition add: (Pawn at: x@2)].
-	whitePiecesPosition add: (Knight at: 2@1);
-						add: (Knight at: 7@1).! !
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:44:12'!
+blackKnight
+	^ Set with: (Knight at: 2@8) with: (Knight at: 7@8)! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 08:26:59'!
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:44:23'!
+blackPawn
+	|pawns|
+	pawns := Set new.
+	1 to: 8 do: [:x | pawns add: (Pawn at: x@7)].
+	^ pawns
+	! !
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:45:20'!
+blackPiecesPosition
+
+	blackPiecesPosition := Set new.
+	blackPiecesPosition addAll: self blackPawn .
+	blackPiecesPosition addAll: self blackKnight .
+	^ blackPiecesPosition.! !
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:43:56'!
+standarPositionPieces
+	pieces := Set new.
+	pieces addAll: self whitePiecesPosition .
+	pieces addAll: self blackPiecesPosition .
+	! !
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:38:29'!
+whiteKnight
+	^ Set with: (Knight at: 2@1) with: (Knight at: 7@1)! !
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:37:41'!
+whitePawn
+	|pawns|
+	pawns := Set new.
+	1 to: 8 do: [:x | pawns add: (Pawn at: x@2)].
+	^ pawns
+	! !
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 09:45:01'!
+whitePiecesPosition
+	
+	whitePiecesPosition := Set new.
+	whitePiecesPosition addAll: self whitePawn .
+	whitePiecesPosition addAll: self whiteKnight .
+	^ whitePiecesPosition.! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 09:46:08'!
 setUp
-	self whitePiecesPosition .
-	chess := ChessGame withPawnsOn: whitePiecesPosition ! !
+	self standarPositionPieces .
+	chess := ChessGame withPawnsOn: pieces ! !
 
 !ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:24:26'!
 test01_movePieceFromE2ToE3HasPawnOnTheNewPosition
@@ -178,6 +217,32 @@ test07_firstMoveItsWhiteTurnNextTurnItsBlackTurn
 	self deny:  (chess isWhiteTurn).
 	self assert: (chess isBlackTurn).! !
 
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 09:53:19'!
+test08_changeTurnMovesAgainToThePawnCorrectly
+	self assert: (chess isWhiteTurn).
+	self deny: (chess isBlackTurn).
+	chess movePieceFrom: 5@2 to: 5@3.
+	chess movePieceFrom: 5@7 to: 5@6.
+	
+	self assert:  (chess hasPawnOn: 5@6).
+	self deny: (chess  hasPawnOn: 5@7).
+	
+	self assert:  (chess isWhiteTurn).
+	self deny: (chess isBlackTurn).! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 09:56:56'!
+test09_bishopTriesToMoveToAPositionWithAPieceOfTheSameColor
+	self assert: (chess isWhiteTurn).
+	self deny: (chess isBlackTurn).
+	chess movePieceFrom: 3@2 to: 3@3.
+	chess movePieceFrom: 5@7 to: 5@6.
+	chess movePieceFrom: 3@1 to: 2@1.
+	self assert:  (chess hasPawnOn: 5@6).
+	self deny: (chess  hasPawnOn: 5@7).
+	
+	self assert:  (chess isWhiteTurn).
+	self deny: (chess isBlackTurn).! !
+
 !ChessGame methodsFor: 'testing pieces position' stamp: 'IF 11/29/2025 08:22:36'!
 hasKnightOn: aBoardDirection
 	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isKnight ] ]! !
@@ -229,18 +294,18 @@ removePieceAt: aPawnDirection
 isBlackTurn
 	^ self isWhiteTurn not! !
 
-!ChessGame methodsFor: 'testing turn' stamp: 'IF 11/29/2025 09:04:11'!
+!ChessGame methodsFor: 'testing turn' stamp: 'IF 11/29/2025 09:47:10'!
 isWhiteTurn
-	^ turn = #White! !
+	^ turnWhite! !
 
-!ChessGame methodsFor: 'turns' stamp: 'IF 11/29/2025 09:05:15'!
+!ChessGame methodsFor: 'turns' stamp: 'IF 11/29/2025 09:47:06'!
 changeTurn
-	turn := #Black! !
+	turnWhite := turnWhite not! !
 
-!ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 09:03:57'!
+!ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 09:46:58'!
 initializeWithPawnsPositionsIn: aCollectionOfPosition 
 	pieces := aCollectionOfPosition.
-	turn := #White.! !
+	turnWhite := true.! !
 
 !ChessGame class methodsFor: 'description error' stamp: 'IF 11/29/2025 08:34:55'!
 descriptionErrorNoHayPiezaEnPosicion: aPosition
