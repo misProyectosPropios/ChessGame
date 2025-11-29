@@ -1,12 +1,12 @@
-'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 7:38:55 am'!
+'From Cuis7.2 [latest update: #6897] on 29 November 2025 at 8:00:16 am'!
 'Description '!
-!provides: 'Chess' 1 2!
+!provides: 'Chess' 1 3!
 SystemOrganization addCategory: #chess!
 
 
 !classDefinition: #ChessTest category: #chess!
 TestCase subclass: #ChessTest
-	instanceVariableNames: 'chess pawnPosition'
+	instanceVariableNames: 'chess whitePiecesPosition'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'chess'!
@@ -16,7 +16,7 @@ ChessTest class
 
 !classDefinition: #ChessGame category: #chess!
 Object subclass: #ChessGame
-	instanceVariableNames: 'pawn'
+	instanceVariableNames: 'pieces'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'chess'!
@@ -24,17 +24,87 @@ Object subclass: #ChessGame
 ChessGame class
 	instanceVariableNames: ''!
 
+!classDefinition: #Pieces category: #chess!
+Object subclass: #Pieces
+	instanceVariableNames: 'position'
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'Pieces class' category: #chess!
+Pieces class
+	instanceVariableNames: ''!
 
-!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 07:10:38'!
+!classDefinition: #Bishop category: #chess!
+Pieces subclass: #Bishop
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'Bishop class' category: #chess!
+Bishop class
+	instanceVariableNames: ''!
+
+!classDefinition: #King category: #chess!
+Pieces subclass: #King
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'King class' category: #chess!
+King class
+	instanceVariableNames: ''!
+
+!classDefinition: #Knight category: #chess!
+Pieces subclass: #Knight
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'Knight class' category: #chess!
+Knight class
+	instanceVariableNames: ''!
+
+!classDefinition: #Pawn category: #chess!
+Pieces subclass: #Pawn
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'Pawn class' category: #chess!
+Pawn class
+	instanceVariableNames: ''!
+
+!classDefinition: #Queen category: #chess!
+Pieces subclass: #Queen
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'Queen class' category: #chess!
+Queen class
+	instanceVariableNames: ''!
+
+!classDefinition: #Rook category: #chess!
+Pieces subclass: #Rook
+	instanceVariableNames: ''
+	classVariableNames: ''
+	poolDictionaries: ''
+	category: 'chess'!
+!classDefinition: 'Rook class' category: #chess!
+Rook class
+	instanceVariableNames: ''!
+
+
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 07:53:48'!
 whitePawnPosition
 	 
-	pawnPosition := Set new.
-	1 to: 8 do: [:x | pawnPosition add: x@2].! !
+	whitePiecesPosition := Set new.
+	1 to: 8 do: [:x | whitePiecesPosition add: (Pawn at: x@2)].! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:17:31'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:48:44'!
 setUp
 	self whitePawnPosition .
-	chess := ChessGame withPawnsOn: pawnPosition ! !
+	chess := ChessGame withPawnsOn: whitePiecesPosition ! !
 
 !ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:24:26'!
 test01_movePieceFromE2ToE3HasPawnOnTheNewPosition
@@ -61,9 +131,21 @@ test03_tryMovingPawnToSideRaisesAnError
 	
 	! !
 
-!ChessGame methodsFor: 'testing' stamp: 'IF 11/29/2025 07:20:38'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:45:26'!
+test04_tryMovingPawnMoreThan2CellsAboveRaisesAnError
+	
+	self should: [chess movePieceFrom: 5@2 to: 5@5.] 
+		raise: Error - MessageNotUnderstood  
+		withExceptionDo: [:error |
+			self assert: (error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 5@5)).
+			self assert: (chess hasPawnOn: 5@2).
+		].
+	
+	! !
+
+!ChessGame methodsFor: 'testing' stamp: 'IF 11/29/2025 07:58:38'!
 hasPawnOn: aBoardDirection
-	^ pawn includes: aBoardDirection ! !
+	^ pieces anySatisfy: [:piece2 | piece2 atPosition: aBoardDirection ]! !
 
 !ChessGame methodsFor: 'actions' stamp: 'IF 11/29/2025 07:34:07'!
 movePieceFrom: aPawnDirection to: aBoardDirectionToMove
@@ -71,20 +153,29 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	self movePawnFrom: aPawnDirection to: aBoardDirectionToMove .
 	! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 07:36:53'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 08:00:03'!
+assertPawnDoestMoveFrom: aPawnDirection horizontallyTo: aBoardDirectionToMove
+
+	^ 1@0 = (aPawnDirection - aBoardDirectionToMove) abs ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardDirectionToMove) ]! !
+
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 08:00:13'!
 movePawnFrom: aPawnDirection to: aBoardDirectionToMove
-	1@0 = (aPawnDirection - aBoardDirectionToMove) abs ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardDirectionToMove) ]. 
+	|pawnPiece|
+	self assertPawnDoestMoveFrom: aPawnDirection horizontallyTo: aBoardDirectionToMove. 
+	
+	(aPawnDirection - aBoardDirectionToMove) abs y > 2 ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardDirectionToMove)].
+	
+	pawnPiece := Pawn at: aBoardDirectionToMove.
+	pieces add: pawnPiece.
+	self removePieceAt: aPawnDirection ! !
 
-	pawn add: aBoardDirectionToMove;
-		  remove: aPawnDirection ! !
+!ChessGame methodsFor: 'boardmmmmmmm' stamp: 'IF 11/29/2025 07:59:19'!
+removePieceAt: aPawnDirection 
+	pieces := pieces select: [:piece | (piece atPosition: aPawnDirection) not].! !
 
-!ChessGame methodsFor: 'initialization' stamp: 'IF 11/26/2025 09:38:15'!
-initialize
-	pawn := 'e2'! !
-
-!ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 07:06:26'!
+!ChessGame methodsFor: 'initialization' stamp: 'IF 11/29/2025 07:58:38'!
 initializeWithPawnsPositionsIn: aCollectionOfPosition 
-	pawn := aCollectionOfPosition ! !
+	pieces := aCollectionOfPosition ! !
 
 !ChessGame class methodsFor: 'description error' stamp: 'IF 11/29/2025 07:30:25'!
 descriptionErrorNoSePuedeMoverAPosicion: aPosition
@@ -93,3 +184,40 @@ descriptionErrorNoSePuedeMoverAPosicion: aPosition
 !ChessGame class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 07:06:05'!
 withPawnsOn: aCollectionOfPosition
 	^ self new initializeWithPawnsPositionsIn: aCollectionOfPosition ! !
+
+!Pieces methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:03'!
+atPosition: aPosition
+
+	self subclassResponsibility! !
+
+!Bishop methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:03'!
+atPosition: aPosition
+	self subclassResponsibility ! !
+
+!King methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:02'!
+atPosition: aPosition
+	self subclassResponsibility ! !
+
+!Knight methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:02'!
+atPosition: aPosition
+	self subclassResponsibility ! !
+
+!Pawn methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:24'!
+atPosition: aPosition
+	^ position = aPosition ! !
+
+!Pawn methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:54:30'!
+initializeAt: aBoardPosition 
+	position := aBoardPosition ! !
+
+!Pawn class methodsFor: 'instance creation' stamp: 'IF 11/29/2025 07:54:16'!
+at: aBoardPosition
+	^ self new initializeAt: aBoardPosition ! !
+
+!Queen methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:03'!
+atPosition: aPosition
+	self subclassResponsibility ! !
+
+!Rook methodsFor: 'as yet unclassified' stamp: 'IF 11/29/2025 07:56:03'!
+atPosition: aPosition
+	self subclassResponsibility ! !
