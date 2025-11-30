@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:23:47 pm'!
+'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:36:19 pm'!
 'Description '!
-!provides: 'Chess' 1 10!
+!provides: 'Chess' 1 11!
 SystemOrganization addCategory: #chess!
 
 
@@ -66,7 +66,7 @@ Knight class
 
 !classDefinition: #Pawn category: #chess!
 Pieces subclass: #Pawn
-	instanceVariableNames: ''
+	instanceVariableNames: 'direction'
 	classVariableNames: ''
 	poolDictionaries: ''
 	category: 'chess'!
@@ -139,11 +139,11 @@ WhitePiece class
 blackKnight
 	^ Set with: (BlackPiece of: (Knight at: 2@8)) with: (BlackPiece of: (Knight at: 7@8))! !
 
-!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 15:24:32'!
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/30/2025 20:33:51'!
 blackPawn
 	|pawns|
 	pawns := Set new.
-	1 to: 8 do: [:x | pawns add: (BlackPiece of: (InitialPawn at: x@7))].
+	1 to: 8 do: [:x | pawns add: (BlackPiece of: (InitialPawn at: x@7 withDirection: -1))].
 	^ pawns
 	! !
 
@@ -177,11 +177,11 @@ whiteBishop
 whiteKnight
 	^ Set with: (WhitePiece of: (Knight at: 2@1)) with: (WhitePiece of: (Knight at: 7@1))! !
 
-!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/29/2025 15:24:38'!
+!ChessTest methodsFor: 'creation objects' stamp: 'IF 11/30/2025 20:33:58'!
 whitePawn
 	|pawns|
 	pawns := Set new.
-	1 to: 8 do: [:x | pawns add: (WhitePiece of: (InitialPawn at: x@2))].
+	1 to: 8 do: [:x | pawns add: (WhitePiece of: (InitialPawn at: x@2 withDirection: 1))].
 	^ pawns
 	! !
 
@@ -748,6 +748,12 @@ moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 
 	self subclassResponsibility! !
 
+!Pieces methodsFor: 'action' stamp: 'IF 11/30/2025 20:31:31'!
+selectAllPosibleMovesInsideBoard: posibleMoves
+	|board|
+	board := Rectangle origin: 1@1 corner: 9@9. "Se pone el 9@9 porque el 8@8 no sería inclusivo con las esquinas"
+	^ posibleMoves select: [:aPosiblePosition | board containsPoint: aPosiblePosition ].! !
+
 !Pieces methodsFor: 'initialization' stamp: 'IF 11/29/2025 12:29:48'!
 initializeAt: aPosition 
 	position := aPosition! !
@@ -870,9 +876,9 @@ moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	self subclassResponsibility ! !
 
-!Knight methodsFor: 'action' stamp: 'IF 11/30/2025 18:53:35'!
+!Knight methodsFor: 'action' stamp: 'IF 11/30/2025 20:31:07'!
 posibleMoves
-	|posibleMoves board|
+	|posibleMoves |
 	posibleMoves := Set new. 
 	posibleMoves add: 1@2 + position.
 	posibleMoves add: 1@-2 + position.
@@ -882,9 +888,12 @@ posibleMoves
 	posibleMoves add: 2@-1 + position.
 	posibleMoves add: -2@1 + position.
 	posibleMoves add: -2@-1 + position.
-	board := Rectangle origin: 1@1 corner: 9@9. "Se pone el 9@9 porque el 8@8 no sería inclusivo con las esquinas"
-	posibleMoves := posibleMoves select: [:aPosiblePosition | board containsPoint: aPosiblePosition ].
-	^ posibleMoves.! !
+	^ self selectAllPosibleMovesInsideBoard: posibleMoves.! !
+
+!Pawn methodsFor: 'initialization' stamp: 'IF 11/30/2025 20:25:25'!
+initializeAt: aBoardPosition withDirection: aDirection
+	position := aBoardPosition.
+	direction := aDirection ! !
 
 !Pawn methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:20:19'!
 isBishop
@@ -910,6 +919,10 @@ isQueen
 isRook
 	^ false.! !
 
+!Pawn class methodsFor: 'instance creation' stamp: 'IF 11/30/2025 20:24:59'!
+at: aBoardPosition withDirection: aDirection
+	^ self new initializeAt: aBoardPosition withDirection: aDirection! !
+
 !InitialPawn methodsFor: 'action' stamp: 'IF 11/29/2025 15:26:00'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 	aChessBoard moveWhiteInitialPawnFrom: position to: aBoardPosition ! !
@@ -918,9 +931,13 @@ moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	aChessBoard moveBlackInitialPawnFrom: position to: aBoardPosition ! !
 
-!InitialPawn methodsFor: 'action' stamp: 'IF 11/30/2025 18:46:04'!
+!InitialPawn methodsFor: 'action' stamp: 'IF 11/30/2025 20:36:08'!
 posibleMoves
-	self subclassResponsibility ! !
+	|posibleMoves |
+	posibleMoves := Set new. 
+	posibleMoves add: 0@direction +  position;
+				  add: 0@(direction * 2) +  position.
+	^ self selectAllPosibleMovesInsideBoard: posibleMoves.! !
 
 !NonInitialPawn methodsFor: 'action' stamp: 'IF 11/29/2025 15:28:10'!
 moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
