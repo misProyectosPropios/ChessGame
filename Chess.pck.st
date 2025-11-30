@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:00:48 pm'!
+'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:19:18 pm'!
 'Description '!
-!provides: 'Chess' 1 8!
+!provides: 'Chess' 1 9!
 SystemOrganization addCategory: #chess!
 
 
@@ -463,16 +463,9 @@ test19_piecesCannotMoveIntoAnotherPieceOfTheSameColor
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 19:04:20'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 20:04:55'!
 test20_posiblesPawnMovesAreCorrectForWhitePawn
-	self should: [chess movePieceFrom: 2@1 to: 4@2] 
-		raise: Error - MessageNotUnderstood  
-		withExceptionDo: [:error | 
-
-			self assert: (error messageText = ChessGame descriptionErrorPiecesCannotMoveAboveOtherPiece).
-			self deny: (chess hasPawnOn: 5@6).
-
-		].
+	self assert: (chess posiblesMovesFrom: 2@1) equals: (Set with: 1@3 with: 3@3)
 	
 	! !
 
@@ -507,6 +500,18 @@ hasPawnOn: aBoardDirection
 hasRookOn: aBoardDirection
 	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardDirection) and: [piece isRook ] ]! !
 
+!ChessGame methodsFor: 'actions' stamp: 'IF 11/30/2025 20:17:25'!
+isPositionEmpty: aPosition
+	^ (self isPositionWithPiece: aPosition) not! !
+
+!ChessGame methodsFor: 'actions' stamp: 'IF 11/30/2025 20:17:00'!
+isPositionWithPiece: aPosition
+	^ pieces anySatisfy: [:piece | piece atPosition: aPosition ]! !
+
+!ChessGame methodsFor: 'actions' stamp: 'IF 11/30/2025 20:14:23'!
+isThereABlackPieceAtPosition: aPosition
+	^ (pieces detect: [:piece | piece atPosition: aPosition ]) isBlackPiece .! !
+
 !ChessGame methodsFor: 'actions' stamp: 'IF 11/29/2025 15:52:34'!
 movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	|pieceAtPosition|
@@ -516,6 +521,19 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	
 	pieceAtPosition moverHacia: aBoardDirectionToMove enElTablero: self.
 	self changeTurn.! !
+
+!ChessGame methodsFor: 'actions' stamp: 'IF 11/30/2025 20:19:09'!
+posibleMovesDoesntGoAbovePiecesOfTheSameType: aSetOfPosibleMoves
+	^ aSetOfPosibleMoves select: [:aPosition | (self isPositionEmpty: aPosition) or: 
+								  [self isThereABlackPieceAtPosition: aPosition ] ] ! !
+
+!ChessGame methodsFor: 'actions' stamp: 'IF 11/30/2025 20:08:03'!
+posiblesMovesFrom: aPosition
+	|piece posibleMove|
+	piece := self pieceAtPosition: aPosition.
+	posibleMove := piece posibleMoves.
+	posibleMove := self posibleMovesDoesntGoAbovePiecesOfTheSameType: posibleMove.
+	^ posibleMove .! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 15:36:12'!
 moveBlackInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
