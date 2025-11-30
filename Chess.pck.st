@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:36:19 pm'!
+'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:38:59 pm'!
 'Description '!
-!provides: 'Chess' 1 11!
+!provides: 'Chess' 1 12!
 SystemOrganization addCategory: #chess!
 
 
@@ -469,9 +469,17 @@ test20_posiblesMovesAreCorrectForWhiteKnight
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 20:22:40'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 20:37:54'!
 test21_posiblesPawnMovesAreCorrectForWhitePawn
-	self assert: (chess posiblesMovesFrom: 2@2) equals: (Set with: 2@3 with: 2@4)
+	self assert: (chess posiblesMovesFrom: 2@2) equals: (Set with: 2@3 with: 2@4).
+	self assert: (chess posiblesMovesFrom: 2@7) equals: (Set with: 2@6 with: 2@5).
+	
+	
+	! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 20:37:36'!
+test22_posiblesMovesAreCorrectForBlackPawn
+	self assert: (chess posiblesMovesFrom: 2@7) equals: (Set with: 2@6 with: 2@5)
 	
 	! !
 
