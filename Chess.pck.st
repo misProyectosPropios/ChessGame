@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:38:59 pm'!
+'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:42:13 pm'!
 'Description '!
-!provides: 'Chess' 1 12!
+!provides: 'Chess' 1 13!
 SystemOrganization addCategory: #chess!
 
 
@@ -477,9 +477,10 @@ test21_posiblesPawnMovesAreCorrectForWhitePawn
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 20:37:36'!
-test22_posiblesMovesAreCorrectForBlackPawn
-	self assert: (chess posiblesMovesFrom: 2@7) equals: (Set with: 2@6 with: 2@5)
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 20:40:01'!
+test22_posiblesMovesAreCorrectForNonInitialPawn
+	chess movePieceFrom: 2@2 to: 2@4. 
+	self assert: (chess posiblesMovesFrom: 2@4) equals: (Set with: 2@5)
 	
 	! !
 
@@ -549,24 +550,24 @@ posiblesMovesFrom: aPosition
 	posibleMove := self posibleMovesDoesntGoAbovePiecesOfTheSameType: posibleMove.
 	^ posibleMove .! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 15:36:12'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/30/2025 20:41:42'!
 moveBlackInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
 	
 	self assertPawnDoestMoveFrom: aPawnPosition horizontallyTo: aBoardPositionToMove. 
 	self assertThatPawnInPosition: aPawnPosition movesTo: aBoardPositionToMove insideRange: 2.
 	
 	self assertThatBlackPawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove.
-	self movePiece: (BlackPiece of: (NonInitialPawn at: aBoardPositionToMove)) from: aPawnPosition . 
+	self movePiece: (BlackPiece of: (NonInitialPawn at: aBoardPositionToMove withDirection: -1)) from: aPawnPosition . 
 	! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 15:36:27'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/30/2025 20:41:48'!
 moveBlackNonInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
 	
 	self assertPawnDoestMoveFrom: aPawnPosition horizontallyTo: aBoardPositionToMove. 
 	self assertThatPawnInPosition: aPawnPosition movesTo: aBoardPositionToMove insideRange: 1.
 	
 	self assertThatBlackPawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove.
-	self movePiece: (BlackPiece of: (NonInitialPawn at: aBoardPositionToMove)) from: aPawnPosition . 
+	self movePiece: (BlackPiece of: (NonInitialPawn at: aBoardPositionToMove withDirection: -1)) from: aPawnPosition . 
 	! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 12:18:57'!
@@ -581,14 +582,14 @@ moveWhiteBishopFrom: aBishopPosition to: aBoardPositionToMove
 	
 	self movePiece: (WhitePiece of: (Bishop at: aBoardPositionToMove)) from: aBishopPosition . ! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 15:38:08'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/30/2025 20:41:28'!
 moveWhiteInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
 	
 	self assertPawnDoestMoveFrom: aPawnPosition horizontallyTo: aBoardPositionToMove. 
 	self assertThatPawnInPosition: aPawnPosition movesTo: aBoardPositionToMove insideRange: 2.
 	
 	self assertThatWhitePawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove.
-	self movePiece: (WhitePiece of: (NonInitialPawn at: aBoardPositionToMove)) from: aPawnPosition . 
+	self movePiece: (WhitePiece of: (NonInitialPawn at: aBoardPositionToMove withDirection: 1)) from: aPawnPosition . 
 	! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/30/2025 19:03:10'!
@@ -601,14 +602,14 @@ moveWhiteKnightFrom: aKnightPosition to: aBoardPositionToMove
 	
 	self movePiece: (WhitePiece of: (Knight at: aBoardPositionToMove)) from: aKnightPosition . ! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 15:38:01'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/30/2025 20:41:55'!
 moveWhiteNonInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
 	
 	self assertPawnDoestMoveFrom: aPawnPosition horizontallyTo: aBoardPositionToMove. 
 	self assertThatPawnInPosition: aPawnPosition movesTo: aBoardPositionToMove insideRange: 1.
 	
 	self assertThatWhitePawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove.
-	self movePiece: (WhitePiece of: (NonInitialPawn at: aBoardPositionToMove)) from: aPawnPosition . 
+	self movePiece: (WhitePiece of: (NonInitialPawn at: aBoardPositionToMove withDirection: 1)) from: aPawnPosition . 
 	! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/29/2025 13:25:28'!
@@ -955,9 +956,12 @@ moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	aChessBoard moveBlackNonInitialPawnFrom: position to: aBoardPosition ! !
 
-!NonInitialPawn methodsFor: 'action' stamp: 'IF 11/30/2025 18:46:04'!
+!NonInitialPawn methodsFor: 'action' stamp: 'IF 11/30/2025 20:40:51'!
 posibleMoves
-	self subclassResponsibility ! !
+	|posibleMoves |
+	posibleMoves := Set new. 
+	posibleMoves add: 0@direction +  position.
+	^ self selectAllPosibleMovesInsideBoard: posibleMoves.! !
 
 !Rook methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:21:00'!
 isBishop
