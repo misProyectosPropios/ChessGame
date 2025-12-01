@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 1 December 2025 at 9:50:11 am'!
+'From Cuis7.2 [latest update: #6897] on 1 December 2025 at 11:16:11 am'!
 'Description '!
-!provides: 'Chess' 1 20!
+!provides: 'Chess' 1 21!
 SystemOrganization addCategory: #chess!
 
 
@@ -632,6 +632,38 @@ test29_kingTriesToMoveToPositionWithPieceOfTheSameColorRaisesAnError
 		].
 ! !
 
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 11:00:20'!
+test30_posiblesMovesAreCorrectForBishopToTheOtherSide
+	|positions result|
+	positions := Set with: 7@2 with: 8@3.
+
+	chess movePieceFrom: 7@2 to: 7@3. 
+	result := chess posiblesMovesFrom: 6@1.
+	self assert: result equals: positions.
+	
+	! !
+
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 11:10:18'!
+test31_posibleMovesWhenTheresPosibleCaptureIncludesThisElementAndNothingMore
+	|positions result|
+	positions := Set new.
+	
+	positions 
+			add: 1@3; add: 2@3; add: 3@3; add: 4@3; add: 5@3; add: 7@3; add: 8@3; "horizotal"
+			add: 6@4; add: 6@5; add: 6@6; add: 6@7;
+			add: 7@5; add: 8@6;
+			add: 4@1; add: 5@2.
+	
+	self chessWithTwoMovesPerPlayer.
+	self assert: (chess hasQueenOn: 4@1).
+	chess movePieceFrom: 5@2 to: 5@4. 
+	chess movePieceFrom: 4@1 to: 6@3. 
+	self assert: (chess hasQueenOn: 6@3).
+	self deny: (chess hasQueenOn: 4@1).
+	self halt.
+	result := chess posiblesMovesFrom: 6@3.
+	self assert: result equals: positions.! !
+
 !ChessTest methodsFor: 'simulation' stamp: 'IF 11/29/2025 10:31:39'!
 manyMovesPerPlayer
 	turns := {true . true . false . false} asOrderedCollection ! !
@@ -681,7 +713,7 @@ movePieceFrom: aPawnDirection to: aBoardDirectionToMove
 	pieceAtPosition moverHacia: aBoardDirectionToMove enElTablero: self.
 	self changeTurn.! !
 
-!ChessGame methodsFor: 'actions' stamp: 'IF 12/1/2025 01:59:49'!
+!ChessGame methodsFor: 'actions' stamp: 'IF 12/1/2025 11:16:00'!
 posiblesMovesFrom: aPosition
 	|piece posibleMove|
 	piece := self pieceAtPosition: aPosition.
@@ -693,6 +725,13 @@ posiblesMovesFrom: aPosition
 			(posibleMove includes: 0@y + aPosition) ifFalse: [posibleMove := self sacarPosicionesVerticalesDesde: 0@y + aPosition enPosiciones: posibleMove  ]
 		]
 	].
+"
+	(piece isRook or: [piece isQueen]) ifTrue: [
+		1 to: 8 do: [:y | 
+			((posibleMove includes: 0@y + aPosition) and: [self isThereABlackPieceAtPosition: 0@y + aPosition]) ifTrue: [posibleMove := self sacarPosicionesVerticalesDesde: 0@(y + 1) + aPosition enPosiciones: posibleMove  ]
+		]
+	]."
+
 	"self halt."
 	(piece isBishop or: [piece isQueen]) ifTrue: [
 		1 to: 8 do: [:y | 
@@ -700,6 +739,17 @@ posiblesMovesFrom: aPosition
 				[:position | "self halt." (position y >= (aPosition  + (y@y)) y and: [position x >= (aPosition  + (y@y)) x]) not] ].
 		]
 	].
+	"
+	6@1 =
+	5@2 + -1@1 
+	"
+	(piece isBishop or: [piece isQueen]) ifTrue: [
+		1 to: 8 do: [:y | 
+			((posibleMove includes: (y * -1)@y + aPosition)) ifFalse: [posibleMove := posibleMove select: 
+				[:position | "self halt." (position y >= (aPosition  + ((y * -1)@y)) y and: [position x <= (aPosition  + ((y * -1)@y)) x]) not] ].
+		]
+	].
+
 	"self halt."
 	^ posibleMove .! !
 
