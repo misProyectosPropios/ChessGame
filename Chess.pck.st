@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 1 December 2025 at 9:32:36 am'!
+'From Cuis7.2 [latest update: #6897] on 1 December 2025 at 9:50:11 am'!
 'Description '!
-!provides: 'Chess' 1 19!
+!provides: 'Chess' 1 20!
 SystemOrganization addCategory: #chess!
 
 
@@ -239,20 +239,22 @@ setUp
 	chess := ChessGame withPawnsOn: pieces withTurnsScheduler: self.
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:24:26'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:35:38'!
 test01_movePieceFromE2ToE3HasPawnOnTheNewPosition
 
 	self assert: (chess hasPawnOn: 5@2).
 	chess movePieceFrom: 5@2 to: 5@3.
-	self assert: (chess hasPawnOn: 5@3).! !
+	self assert: (chess hasPawnOn: 5@3).
+	self deny: (chess hasPawnOn: 5@1).
+	self deny: (chess hasPawnOn: 4@1).! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 07:22:00'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:36:23'!
 test02_pawnMoveFromE2ToE3IsNotInE2
 
 	chess movePieceFrom: 5@2 to: 5@3.
-	self deny: (chess hasPawnOn: 5@2)! !
+	self deny: (chess hasPawnOn: 5@2).! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 08:50:44'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:36:43'!
 test03_tryMovingPawnToSideRaisesAnError
 	
 	self should: [chess movePieceFrom: 5@2 to: 6@2.] 
@@ -260,11 +262,13 @@ test03_tryMovingPawnToSideRaisesAnError
 		withExceptionDo: [:error |
 			self assert: (error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 6@2)).
 			self assert: (chess hasPawnOn: 5@2).
+			self deny: (chess hasPawnOn: 3@1).
+			self deny: (chess hasPawnOn: 2@1).
 		].
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 08:50:14'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:36:51'!
 test04_tryMovingPawnMoreThan2CellsAboveRaisesAnError
 	
 	self should: [chess movePieceFrom: 5@2 to: 5@5.] 
@@ -273,20 +277,24 @@ test04_tryMovingPawnMoreThan2CellsAboveRaisesAnError
 			self assert: (error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 5@5)).
 			self assert: (chess hasPawnOn: 5@2).
 			self deny: (chess hasPawnOn: 5@5).
+			self deny: (chess hasPawnOn: 1@1).
 		].
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 08:33:02'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:48:38'!
 test05_moveKnigthFrom2x1To3x3HasKnightInTheNewPosition
 	
 	self assert: (chess hasKnightOn: 2@1).
 	chess movePieceFrom: 2@1 to: 3@3.
 	self assert: (chess hasKnightOn: 3@3).
 	self deny: (chess hasKnightOn: 2@1).
+	self deny: (chess hasKnightOn: 3@1).
+	self deny: (chess hasKnightOn: 1@1).
+	self deny: (chess hasKnightOn: 2@2).
 ! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 09:04:30'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:39:06'!
 test06_moveKnightVerticallyRaisesAnError
 	
 	self assert: (chess hasKnightOn: 7@1).
@@ -298,6 +306,8 @@ test06_moveKnightVerticallyRaisesAnError
 			self assert: (error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 7@3)).
 			self assert: (chess hasKnightOn: 7@1).
 			self deny: (chess hasKnightOn: 7@3).
+			self deny: (chess hasKnightOn: 4@1).
+			self deny: (chess hasKnightOn: 5@1).
 		] .
 ! !
 
@@ -378,7 +388,7 @@ test11_pawnMoveBackwardsRaisesError
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 12:46:37'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:39:52'!
 test12_moveBishopDiagonallyMovesItToThePosition
 	self chessWithTwoMovesPerPlayer.
 	self assert: (chess hasBishopOn: 3@1).
@@ -388,10 +398,12 @@ test12_moveBishopDiagonallyMovesItToThePosition
 
 	self assert: (chess hasBishopOn: 1@3).	
 	self deny: (chess hasBishopOn: 3@1).	
-	
+	self deny: (chess hasBishopOn: 1@1).	
+	self deny: (chess hasBishopOn: 2@1).	
+	self deny: (chess hasBishopOn: 4@1).	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 12:54:06'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:40:03'!
 test13_bishopTriesToMoveNotDiagonallyRaisesAnError
 	self chessWithTwoMovesPerPlayer.
 	self assert: (chess hasBishopOn: 3@1).
@@ -404,13 +416,15 @@ test13_bishopTriesToMoveNotDiagonallyRaisesAnError
 			self assert: error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 3@3).
 			self assert: (chess hasBishopOn: 3@1).	
 			self deny: (chess hasBishopOn: 3@3).	
+			self deny: (chess hasBishopOn: 5@1).	
+	
 	
 		].	
 
 
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 13:05:20'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:41:00'!
 test14_rookMovesVerticallyThenItsOnTheExpectedPlace
 	self chessWithTwoMovesPerPlayer.
 	self assert: (chess hasRookOn: 8@1).
@@ -420,10 +434,17 @@ test14_rookMovesVerticallyThenItsOnTheExpectedPlace
 
 	self assert: (chess hasRookOn: 8@2).	
 	self deny: (chess hasRookOn: 8@1).	
+	self deny: (chess hasRookOn: 2@1).	
+	self deny: (chess hasRookOn: 3@1).	
+	
+	
+	
+	
+	
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 11/29/2025 13:24:28'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:41:06'!
 test15_rookTriesToMoveNotVerticallyNeitherHorizontallyGeneratesError
 	self chessWithTwoMovesPerPlayer.
 	self assert: (chess hasRookOn: 8@1).
@@ -436,6 +457,7 @@ test15_rookTriesToMoveNotVerticallyNeitherHorizontallyGeneratesError
 			self assert: error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 7@2).
 			self assert: (chess hasRookOn: 8@1).	
 			self deny: (chess hasRookOn: 7@2).	
+			self deny: (chess hasRookOn: 5@1).	
 	
 		].	
 
@@ -596,7 +618,7 @@ test28_posibleMovesOfQueenAreDiagonallyVerticallyAndHorizontally
 	
 	! !
 
-!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:26:05'!
+!ChessTest methodsFor: 'tests' stamp: 'IF 12/1/2025 09:47:17'!
 test29_kingTriesToMoveToPositionWithPieceOfTheSameColorRaisesAnError
 	self should: [chess movePieceFrom: 5@1 to: 5@2. ] 
 		raise: Error - MessageNotUnderstood  
@@ -604,7 +626,9 @@ test29_kingTriesToMoveToPositionWithPieceOfTheSameColorRaisesAnError
 
 			self assert: (error messageText = (ChessGame descriptionErrorNoSePuedeMoverAPosicion: 5@2)).
 			self assert: (chess hasKingOn: 5@1).
-
+			self deny: (chess hasKingOn: 3@1).
+			self deny: (chess hasKingOn: 2@1).
+			self deny: (chess hasKingOn: 4@2).
 		].
 ! !
 
@@ -795,14 +819,6 @@ initializeWithPawnsPositionsIn: aCollectionOfPosition withTurnScheduler: aTurnSc
 	turnWhite := turnScheduler nextTurn.
 	! !
 
-!ChessGame methodsFor: 'piece at position do something' stamp: 'IF 11/30/2025 18:33:52'!
-isThereAnyBlackPieceAt: aBoardPositionToMove
-	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardPositionToMove) and: [piece isWhitePiece ]]! !
-
-!ChessGame methodsFor: 'piece at position do something' stamp: 'IF 11/30/2025 18:31:38'!
-isThereAnyWhitePieceAt: aBoardPositionToMove
-	^ pieces anySatisfy: [:piece | (piece atPosition: aBoardPositionToMove) and: [piece isWhitePiece ]]! !
-
 !ChessGame methodsFor: 'piece at position do something' stamp: 'IF 11/29/2025 07:59:19'!
 removePieceAt: aPawnDirection 
 	pieces := pieces select: [:piece | (piece atPosition: aPawnDirection) not].! !
@@ -814,10 +830,6 @@ descriptionErrorNoHayPiezaEnPosicion: aPosition
 !ChessGame class methodsFor: 'description error' stamp: 'IF 11/29/2025 07:30:25'!
 descriptionErrorNoSePuedeMoverAPosicion: aPosition
 	^ 'No se puede moverse a la posicion: ' , aPosition asString! !
-
-!ChessGame class methodsFor: 'description error' stamp: 'IF 11/30/2025 18:21:41'!
-descriptionErrorPiecesCannotMoveAboveOtherPiece
-	^ 'Las piezas de un color no se pueden mover sobre las piezas del mismo jugador'! !
 
 !ChessGame class methodsFor: 'description error' stamp: 'IF 11/29/2025 15:39:44'!
 descriptionErrorPlayerCanOnlyMoveItsPieces
