@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 8:42:13 pm'!
+'From Cuis7.2 [latest update: #6897] on 30 November 2025 at 11:26:13 pm'!
 'Description '!
-!provides: 'Chess' 1 13!
+!provides: 'Chess' 1 14!
 SystemOrganization addCategory: #chess!
 
 
@@ -484,6 +484,18 @@ test22_posiblesMovesAreCorrectForNonInitialPawn
 	
 	! !
 
+!ChessTest methodsFor: 'tests' stamp: 'IF 11/30/2025 23:25:50'!
+test23_posiblesMovesAreCorrectForBishop
+	|positions|
+	positions := Set with: 2@2 with: 1@3 with: 1@3 with: 4@2 with: 5@3 with: 6@4.
+	positions add: 7@5; add: 8@6.
+	self chessWithTwoMovesPerPlayer.
+	chess movePieceFrom: 4@2 to: 4@3. 
+	chess movePieceFrom: 2@2 to: 2@3. 
+	self assert: (chess posiblesMovesFrom: 3@1) equals: positions.
+	
+	! !
+
 !ChessTest methodsFor: 'simulation' stamp: 'IF 11/29/2025 10:31:39'!
 manyMovesPerPlayer
 	turns := {true . true . false . false} asOrderedCollection ! !
@@ -813,9 +825,20 @@ moverBlancaHacia: aBoardPosition enElTablero: aChessBoard
 moverNegraHacia: aBoardPosition enElTablero: aChessBoard
 	self subclassResponsibility ! !
 
-!Bishop methodsFor: 'initialization' stamp: 'IF 11/30/2025 18:45:26'!
+!Bishop methodsFor: 'action' stamp: 'IF 11/30/2025 23:26:03'!
 posibleMoves
-	self subclassResponsibility ! !
+	|posibleMoves |
+	posibleMoves := Set new.
+	1 to: 8 do: [:x | 
+		posibleMoves add: x@x +  position.
+		posibleMoves add: (x * -1)@x +  position.
+		posibleMoves add: x@(x * -1) +  position.
+		posibleMoves add: (x * -1)@(x * -1) +  position.
+	]. 
+	posibleMoves := self selectAllPosibleMovesInsideBoard: posibleMoves.
+	
+	
+	^ posibleMoves.! !
 
 !King methodsFor: 'isPiece' stamp: 'IF 11/29/2025 08:19:37'!
 isBishop
