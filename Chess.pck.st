@@ -1,6 +1,6 @@
-'From Cuis7.2 [latest update: #6897] on 1 December 2025 at 9:26:30 am'!
+'From Cuis7.2 [latest update: #6897] on 1 December 2025 at 9:32:36 am'!
 'Description '!
-!provides: 'Chess' 1 18!
+!provides: 'Chess' 1 19!
 SystemOrganization addCategory: #chess!
 
 
@@ -683,9 +683,8 @@ posiblesMovesFrom: aPosition
 sacarPosicionesVerticalesDesde: aPosition enPosiciones: aSetOfPositions
 	^ aSetOfPositions select: [:position | (position y > aPosition y and: [position x = aPosition x]) not]! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:12:03'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:27:21'!
 assertPieceAt: aPawnPosition couldMoveToABoardPosition: aBoardPositionToMove
-
 	|positionsToMove|
 	positionsToMove := self posiblesMovesFrom: aPawnPosition.
 	(positionsToMove includes: aBoardPositionToMove) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
@@ -707,11 +706,9 @@ movePiece: aPiece from: aPosition
 	pieces add: aPiece.
 	self removePieceAt: aPosition .! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:13:05'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:27:07'!
 moveWhiteBishopFrom: aBishopPosition to: aBoardPositionToMove 
-	self assertPieceAt: aBishopPosition couldMoveToABoardPosition: aBoardPositionToMove.
-	"self assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove."
-	
+	self assertPieceAt: aBishopPosition couldMoveToABoardPosition: aBoardPositionToMove.	
 	self movePiece: (WhitePiece of: (Bishop at: aBoardPositionToMove)) from: aBishopPosition . ! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:17:55'!
@@ -720,15 +717,13 @@ moveWhiteInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
 	self movePiece: (WhitePiece of: (NonInitialPawn at: aBoardPositionToMove withDirection: 1)) from: aPawnPosition . 
 	! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:26:22'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:27:29'!
 moveWhiteKingFrom: aKingPosition to: aBoardPositionToMove 
-	
 	self assertPieceAt: aKingPosition couldMoveToABoardPosition: aBoardPositionToMove.
 	self movePiece: (WhitePiece of: (King at: aBoardPositionToMove )) from: aKingPosition . ! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:18:02'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:27:33'!
 moveWhiteKnightFrom: aKnightPosition to: aBoardPositionToMove 
-	
 	self assertPieceAt: aKnightPosition couldMoveToABoardPosition: aBoardPositionToMove.
 	self movePiece: (WhitePiece of: (Knight at: aBoardPositionToMove)) from: aKnightPosition . ! !
 
@@ -738,10 +733,9 @@ moveWhiteNonInitialPawnFrom: aPawnPosition to: aBoardPositionToMove
 	self movePiece: (WhitePiece of: (NonInitialPawn at: aBoardPositionToMove withDirection: 1)) from: aPawnPosition . 
 	! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:15:38'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:27:15'!
 moveWhiteQueenFrom: aQueenPosition to: aBoardPositionToMove 
 	self assertPieceAt: aQueenPosition couldMoveToABoardPosition: aBoardPositionToMove.
-	
 	self movePiece: (WhitePiece of: (Queen at: aBoardPositionToMove )) from: aQueenPosition . ! !
 
 !ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:18:19'!
@@ -749,31 +743,9 @@ moveWhiteRookFrom: aRookPosition to: aBoardPositionToMove
 	self assertPieceAt: aRookPosition couldMoveToABoardPosition: aBoardPositionToMove.
 	self movePiece: (WhitePiece of: (Rook at: aBoardPositionToMove)) from: aRookPosition . ! !
 
-!ChessGame methodsFor: 'pieces movement' stamp: 'IF 11/30/2025 18:57:14'!
+!ChessGame methodsFor: 'pieces movement' stamp: 'IF 12/1/2025 09:27:37'!
 pieceAtPosition: aPosition
-
 	^ pieces detect: [:aPiece | aPiece atPosition: aPosition ]! !
-
-!ChessGame methodsFor: 'pawn assertions' stamp: 'IF 11/29/2025 08:00:03'!
-assertPawnDoestMoveFrom: aPawnDirection horizontallyTo: aBoardDirectionToMove
-
-	^ 1@0 = (aPawnDirection - aBoardDirectionToMove) abs ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardDirectionToMove) ]! !
-
-!ChessGame methodsFor: 'pawn assertions' stamp: 'IF 11/29/2025 12:07:34'!
-assertThatBlackPawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove
-
-	^ (aPawnPosition - aBoardPositionToMove) y <= 0 ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
-
-!ChessGame methodsFor: 'pawn assertions' stamp: 'IF 11/29/2025 15:35:52'!
-assertThatPawnInPosition: aPawnPosition movesTo: aBoardPositionToMove insideRange: aRange
-
-	^ (aPawnPosition - aBoardPositionToMove) abs y > aRange ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].
-	! !
-
-!ChessGame methodsFor: 'pawn assertions' stamp: 'IF 11/29/2025 12:04:55'!
-assertThatWhitePawnCannotGoFrom: aPawnPosition backwardsTo: aBoardPositionToMove
-
-	^ (aPawnPosition - aBoardPositionToMove) y >= 0 ifTrue: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
 
 !ChessGame methodsFor: 'testing turn' stamp: 'IF 11/29/2025 09:04:21'!
 isBlackTurn
@@ -834,24 +806,6 @@ isThereAnyWhitePieceAt: aBoardPositionToMove
 !ChessGame methodsFor: 'piece at position do something' stamp: 'IF 11/29/2025 07:59:19'!
 removePieceAt: aPawnDirection 
 	pieces := pieces select: [:piece | (piece atPosition: aPawnDirection) not].! !
-
-!ChessGame methodsFor: 'bishop assertions' stamp: 'IF 11/29/2025 13:00:55'!
-assertBishopPosition: aBishopPosition isDiagonalToPositionToGo: aBoardPositionToMove
-
-	^ (aBishopPosition - aBoardPositionToMove) abs x = (aBishopPosition - aBoardPositionToMove) abs y  ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)]! !
-
-!ChessGame methodsFor: 'rook assertions' stamp: 'IF 11/29/2025 13:25:28'!
-assertRookPosition: aBoardPositionToMove goesVerticallyOrHorizontallyTo: aRookPosition
-
-	^ ((aRookPosition - aBoardPositionToMove) x = 0 or: [
-		(aRookPosition - aBoardPositionToMove) y = 0]) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove )]! !
-
-!ChessGame methodsFor: 'knight assertions' stamp: 'IF 11/29/2025 13:14:47'!
-assertKnightPosition: aKnightPosition triesToMoveInLShapeTo: aBoardPositionToMove
-	
-	((aKnightPosition - aBoardPositionToMove) abs = (1@2) or: [
-		(aKnightPosition - aBoardPositionToMove) abs = (2@1)
-	] ) ifFalse: [self error: (self class descriptionErrorNoSePuedeMoverAPosicion: aBoardPositionToMove)].! !
 
 !ChessGame class methodsFor: 'description error' stamp: 'IF 11/29/2025 08:34:55'!
 descriptionErrorNoHayPiezaEnPosicion: aPosition
